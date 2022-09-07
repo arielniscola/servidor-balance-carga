@@ -26,7 +26,7 @@ const User = require('../src/models/user');
 const args = yargs(hideBin(process.argv))
   .alias({ p: 'port'})
   .default({ port: 8080}).argv;
-const isCluster = process.args[3] == "cluster"
+const isCluster = process.argv[3] == "cluster"
 const cpus = os.cpus()
 if(isCluster && cluster.isPrimary){
     cpus.map(() => {
@@ -34,13 +34,11 @@ if(isCluster && cluster.isPrimary){
     })
     cluster.on("exit", (worker) => {
         console.log(`Worker ${worker.process.pid} died`);
-
         cluster.fork()
     })
 }else {
     const serverExpress = app.listen(args.port, () =>console.log('Servidor escuchando puerto 8080'))
 }
-
 
     app.use(express.urlencoded({extended:true}));
     app.use(express.json())

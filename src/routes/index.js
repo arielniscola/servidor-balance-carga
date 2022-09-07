@@ -5,7 +5,7 @@ const ProductosAleatorios = require('../contenedor/productosAleatorios')
 const router = Router();
 const products = new ProductosAleatorios();
 const { fork } = require('child_process')
-
+const os = require('os')
 
 
 router.get('/productos-test', authMiddleware, async (req, res) => {
@@ -46,7 +46,8 @@ router.get('/info', authMiddleware, (req, res) => {
       memoriaReservada: process.memoryUsage().rss,
       directorioTrabajo: process.cwd(),
       argumentosEntrada: `${process.argv.slice(2)}`,
-      carpetaProyecto: process.execPath
+      carpetaProyecto: process.execPath,
+      workers: os.cpus().length
    }
    console.log(info);
    res.render('info', {info: info})
