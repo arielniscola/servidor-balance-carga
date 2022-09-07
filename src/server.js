@@ -22,13 +22,17 @@ require('dotenv').config()
 const mensajeContenedor = new Contenedor(configSqlite, 'Mensaje');
 const productoContenedor = new Contenedor(configMariaDB, 'Producto');
 const User = require('../src/models/user');
+var serverExpress = undefined;
 //config yargs
 const args = yargs(hideBin(process.argv))
   .alias({ p: 'port'})
   .default({ port: 8080}).argv;
+
+//config cluster
 const isCluster = process.argv[3] == "cluster"
 const cpus = os.cpus()
-if(isCluster && cluster.isPrimary){
+
+if(isCluster && cluster.isMaster){
     cpus.map(() => {
         cluster.fork()
     })
@@ -37,7 +41,7 @@ if(isCluster && cluster.isPrimary){
         cluster.fork()
     })
 }else {
-    const serverExpress = app.listen(args.port, () =>console.log('Servidor escuchando puerto 8080'))
+    serverExpress = app.listen(args.port, () =>console.log(`Servidor escuchando puerto ${args.port}`))
 }
 
     app.use(express.urlencoded({extended:true}));
@@ -135,11 +139,12 @@ if(isCluster && cluster.isPrimary){
             
         
 //Inicio de servidores
+console.log(process.env.MONGO_CONNECTION);
 mongoose.connect(process.env.MONGO_CONNECTION, {}).then(()=>{
   console.log("La conexión a la bd se ha realizado correctamente!")
 }).catch(err=>console.log(err));
 
-const serverExpress = app.listen(args.port, () =>console.log('Servidor escuchando puerto 8080'))
+//const serverExpress = app.listen(args.port, () =>console.log('Servidor escuchando puerto 8080'))
 const io = new IOServer(serverExpress)
         
 
